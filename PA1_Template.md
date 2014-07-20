@@ -39,7 +39,8 @@ assignment so you do not have to download the data separately.
 
 > 2. Process/transform the data (if necessary) into a format suitable for your analysis
 
-```{r}
+
+```r
 setwd("/Users/mohana/Documents/Coursera/WDir") # 1. Load & Process
 activity <- read.csv("activity.csv",stringsAsFactors = FALSE) 
 ```
@@ -54,14 +55,24 @@ activity <- read.csv("activity.csv",stringsAsFactors = FALSE)
 > 2. Calculate and report the **mean** and **median** total number of steps taken per day
 
 
-```{r}
+
+```r
 clean_activity <- activity[complete.cases(activity$steps),] # 1. Histogram
 totalSteps <- aggregate(steps ~ date, data = clean_activity, 
           FUN = sum)
 names(totalSteps)[2]<-paste("sumofSteps")
 hist(totalSteps$sumofSteps, xlab = "Total no of Steps per day", ylab = "Number of Instances", main = "Total Steps Taken per Day")
+```
 
+![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2.png) 
+
+```r
 c(Mean=mean(totalSteps$sumofSteps),Median = median(totalSteps$sumofSteps)) # 2. Calcuate Mean and Median
+```
+
+```
+##   Mean Median 
+##  10766  10765
 ```
 
 > ## What is the average daily activity pattern?
@@ -70,12 +81,22 @@ c(Mean=mean(totalSteps$sumofSteps),Median = median(totalSteps$sumofSteps)) # 2. 
 > 
 > 2. Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 
-```{r}
+
+```r
 library(ggplot2) # 1. Time Series plot
 intervalSteps <- aggregate(steps ~ interval, data = clean_activity, 
                         FUN = sum) 
 ggplot(intervalSteps, aes(x = interval, y = steps)) + geom_line()
+```
+
+![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3.png) 
+
+```r
 intervalSteps$interval[intervalSteps$steps == max(intervalSteps$steps, na.rm=TRUE)] # 2. Top "5 Minute interval" steps
+```
+
+```
+## [1] 835
 ```
 
 > ## Imputing missing values
@@ -92,8 +113,16 @@ intervalSteps$interval[intervalSteps$steps == max(intervalSteps$steps, na.rm=TRU
 > 
 > 4. Make a histogram of the total number of steps taken each day and Calculate and report the **mean** and **median** total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
 
-```{r}
+
+```r
 nrow(activity[!complete.cases(activity),]) # 1. Missing Values
+```
+
+```
+## [1] 2304
+```
+
+```r
 interval_activity <- aggregate(steps ~ interval, data = clean_activity, # 2. Update interval mean for NA
                   FUN = mean)
 noNA_activity <- activity
@@ -109,8 +138,17 @@ total_noNA_Steps <- aggregate(steps ~ date, data = noNA_activity,
           FUN = sum)
 names(total_noNA_Steps)[2]<-paste("sumofSteps")
 hist(total_noNA_Steps$sumofSteps, xlab = "Total no of Steps per day", ylab = "Number of Instances", main = "Total Steps Taken per Day")
+```
 
+![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4.png) 
+
+```r
 c(NewMean=mean(total_noNA_Steps$sumofSteps),Mean=mean(totalSteps$sumofSteps),NewMedian = median(total_noNA_Steps$sumofSteps),Median = median(totalSteps$sumofSteps))
+```
+
+```
+##   NewMean      Mean NewMedian    Median 
+##     10766     10766     10766     10765
 ```
 
 Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
@@ -126,7 +164,8 @@ Only the median changes but not the mean as we are imputing the mean into the da
 > 
 > 2. Make a panel plot containing a time series plot (i.e. `type = "l"`) of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). 
 
-```{r}
+
+```r
 library(lattice)
 weekend_activity <- noNA_activity # 1. Update Weekend and Weekday
 weekend_activity$date <- as.Date(weekend_activity$date)
@@ -144,3 +183,5 @@ agg_weekend_activity <- aggregate(steps ~ weekend+interval, data = weekend_activ
                               FUN = mean) # 2. Time series with weekend & weekday
 xyplot(steps~interval|weekend, data=agg_weekend_activity, type='l', layout=c(1, 2))
 ```
+
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5.png) 
